@@ -19,9 +19,7 @@ const indexRoutes = require("./routes/index");
 
 const app = express();
 
-const databaseUrl = "mongodb://phil:tang@ds163232.mlab.com:63232/philtang";
-mongoose.connect(databaseUrl);
-
+mongoose.connect("mongodb://phil:tang@ds163232.mlab.com:63232/philtang");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "/public")));
