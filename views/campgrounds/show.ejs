@@ -1,31 +1,46 @@
 <% include ../partials/header %>
+
 <div class="row">
   <div class="col-md-3">
-    <p class="lead">YelpCamp</p>
+    <h4>Submitted by</h4>
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <div class="panel-title"><%= user.firstName + " " + user.lastName %></div>
+      </div>
+      <div class="panel-body">
+        <div class="thumbnail">
+          <img src="<%= user.profilePic %>" alt="user profile image">
+          <div class="caption">
+            <p>Username: <%= campground.author.username %></a></p>
+            <p>Email: <a href="mailto:<%= user.email %>"><%= user.email %></a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h4><%= user.firstName %>'s campgrounds</h4>
     <div class="list-group">
-      <li class="list-group-item active">Info 1</li>
-      <li class="list-group-item">Info 2</li>
-      <li class="list-group-item">Info 3</li>
+      <a class="list-group-item active" href="#"><%= campground.name %></a>
+      <% userCampgrounds.forEach((campground) => { %>
+        <a class="list-group-item" href="/campgrounds/<%= campground.id %>"><%= campground.name %></a>
+      <% }) %>
     </div>
     <div id="map"></div>
   </div>
   <div class="col-md-9">
     <div class="thumbnail">
-      <img class="img-responsive" src="<%= campground.image %>">
+      <img class="img-responsive" src="<%= campground.image %>" alt="Campground Image">
       <div class="caption-full">
-        <h4 class="pull-right">
-          $<%= campground.cost %>/night
-        </h4>
-        <h4><a><%=campground.name%></a></h4>
-        <p><%= campground.description %></p>
+        <h4 class="pull-right">$<%= campground.price %>/night</h4>
+        <h4><a href="#"><%= campground.name %></a></h4>
         <p>
-          <em>Submitted by: <%= campground.author.username %>, <%= moment(campground.createdAt).fromNow() %></em>
+          Submitted <em><%= moment(campground.createdAt).fromNow() %></em>
         </p>
-        <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
-        <a class="btn btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
-        <form action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST" class="delete-form">
-          <button class="btn btn-danger">Delete</button>
-        </form>
+        <p><%= campground.description %></p>
+        <% if (currentUser && (campground.author.id.equals(currentUser._id) || currentUser.isAdmin)) { %>
+          <a class="btn btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+          <form class="delete-form" action="/campgrounds/<%= campground._id %>?_method=delete" method="post">
+            <button class="btn btn-danger">Delete</button>
+          </form>
         <% } %>
       </div>
     </div>
@@ -33,57 +48,53 @@
       <div class="text-right">
         <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
       </div>
-      <hr>
-      <% campground.comments.forEach(function(comment){ %>
-      <div class="row">
-        <div class="col-md-12">
-          <strong><%= comment.author.username %></strong>
-          <span class="pull-right"><%= moment(comment.createdAt).fromNow() %></span>
-          <div>
-           <%= comment.text %> 
-
-           <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
-            <div class="pull-right">
-              <a href="/campgrounds/<%=campground._id%>/comments/<%=comment._id%>/edit" class="btn btn-xs btn-warning">EDIT</a>
-              <form class="delete-form" action="/campgrounds/<%=campground._id%>/comments/<%=comment._id%>?_method=DELETE" method="POST">
-                <button class="btn btn-xs btn-danger">DELETE</button>
-              </form>
-            </div>
-          <% } %>
-          <hr>
+      <% campground.comments.forEach((comment) => { %>
+        <hr>
+        <div class="row">
+          <div class="col-md-12">
+            <strong><%= comment.author.username %></strong>
+            <span class="pull-right"><%= moment(comment.createdAt).fromNow() %></span>
+            <p>
+              <%= comment.text %>
+            </p>
+            <% if (currentUser && (comment.author.id.equals(currentUser._id) || currentUser.isAdmin)) { %>
+              <div class="pull-right">
+                <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>/edit">Edit</a>
+                <form class="delete-form" action="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>?_method=delete" method="post">
+                  <input class="btn btn-xs btn-danger" type="submit" value="Delete">
+                </form>
+              </div>
+            <% } %>
+          </div>
         </div>
-      </div>
+      <% }) %>
     </div>
-    <% }) %>
   </div>
 </div>
-</div>
+
 <script>
   function initMap() {
-    var lat = <%= campground.lat %>;
-    var lng = <%= campground.lng %>;
-    var center = {lat: lat, lng: lng };
-    var map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 8,
-        center: center,
-        scrollwheel: false
+    let lat = <%= campground.lat %>;
+    let lng = <%= campground.lng %>;
+    let center = { lat, lng };
+    let map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 8,
+      center: center,
+      scrollwheel: false
     });
-    var contentString = `
-      <strong><%= campground.name %><br />
-      <%= campground.location %></strong>
-      <p><%= campground.description %></p>
-    `
-    var infowindow = new google.maps.InfoWindow({
+    let contentString = `<strong><%= campground.name %><br / /><%= campground.location %></strong><p><%= campground.description %></p>`
+    let infowindow = new google.maps.InfoWindow({
       content: contentString
     });
-    var marker = new google.maps.Marker({
-        position: center,
-        map: map
+    let marker = new google.maps.Marker({
+      position: center,
+      map: map
     });
-    marker.addListener('click', function() {
+    marker.addListener("click", () => {
       infowindow.open(map, marker);
     });
   }
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkG51lwJtDvYFKTBdRZlhzYg1D4QFsXPU&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.MAPS_API_KEY %>&callback=initMap"></script>
+
 <% include ../partials/footer %>
