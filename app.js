@@ -19,7 +19,7 @@ const indexRoutes = require("./routes/index");
 
 const app = express();
 
-const databaseUrl = process.env.DATABASEURL || "mongodb://localhost/yelp_camp";
+const databaseUrl = "mongodb://PhilipWuTang:PhiladelphiaT0321@ds133279.mlab.com:33279/philiptang-yelpcamp";
 mongoose.connect(databaseUrl);
 
 app.use(bodyParser.urlencoded({ extended: true }));
