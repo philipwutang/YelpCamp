@@ -1,59 +1,61 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-const path = require("path");
-const passport = require("passport");
-const LocalStrategy = require("passport-local");
-const methodOverride = require("method-override");
-const flash = require("connect-flash");
-const User = require("./models/user");
-const Campground = require("./models/campground");
-const Comment = require("./models/comment");
-const seedDB = require("./seeds");
+var express     = require("express"),
+    app         = express(),
+    bodyParser  = require("body-parser"),
+    mongoose    = require("mongoose"),
+    passport    = require("passport"),
+    cookieParser = require("cookie-parser"),
+    LocalStrategy = require("passport-local"),
+    flash        = require("connect-flash"),
+    Campground  = require("./models/campground"),
+    Comment     = require("./models/comment"),
+    User        = require("./models/user"),
+    session = require("express-session"),
+    seedDB      = require("./seeds"),
+    methodOverride = require("method-override");
+    
+// configure dotenv
+require('dotenv').load();
 
-// requiring routes
-const campgroundRoutes = require("./routes/campgrounds");
-const commentRoutes = require("./routes/comments");
-const accountRoutes = require("./routes/accounts");
-const indexRoutes = require("./routes/index");
-
-const app = express();
-
+//requiring routes
+var commentRoutes    = require("./routes/comments"),
+    campgroundRoutes = require("./routes/campgrounds"),
+    indexRoutes      = require("./routes/index")
+    
 mongoose.connect("mongodb://phil:tang@ds163232.mlab.com:63232/philtang");
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
-app.use(express.static(path.join(__dirname, "/public")));
-app.use(methodOverride("_method"));
-app.use(flash());
-// seedDB(); // seed the database
+app.use(express.static(__dirname + "/public"));
+app.use(methodOverride('_method'));
+app.use(cookieParser('secret'));
+//require moment
+app.locals.moment = require('moment');
+// seedDB(); //seed the database
 
-// Passport configuration
+// PASSPORT CONFIGURATION
 app.use(require("express-session")({
-  secret: "It's a secret!",
-  resave: false,
-  saveUninitialized: false,
+    secret: "Once again Rusty wins cutest dog!",
+    resave: false,
+    saveUninitialized: false
 }));
 
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.use((req, res, next) => {
-  res.locals.currentUser = req.user;
-  res.locals.error = req.flash("error");
-  res.locals.success = req.flash("success");
-  next();
+app.use(function(req, res, next){
+   res.locals.currentUser = req.user;
+   res.locals.success = req.flash('success');
+   res.locals.error = req.flash('error');
+   next();
 });
-
-app.locals.moment = require("moment");
 
 app.use("/", indexRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/comments", commentRoutes);
-app.use("/accounts", accountRoutes);
 
-app.listen(process.env.PORT || 9000, () => {
-  console.log("The YelpCamp Server has started!");
+app.listen(process.env.PORT, process.env.IP, function(){
+   console.log("The YelpCamp Server Has Started!");
 });
