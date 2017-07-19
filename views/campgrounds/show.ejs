@@ -1,118 +1,100 @@
 <% include ../partials/header %>
 
-  <div class="row">
-    <div class="col-md-3">
-      <h4>Submitted by</h4>
-      <div class="panel panel-primary">
-        <div class="panel-heading">
-          <div class="panel-title">
-            <%= user.firstName + " " + user.lastName %>
-          </div>
-        </div>
-        <div class="panel-body">
-          <div class="thumbnail">
-            <img src="<%= user.profilePic %>" alt="user profile image">
-            <div class="caption">
-              <p>Username:
-                <%= campground.author.username %>
-                  </a>
-              </p>
-              <p>Email:
-                <a href="mailto:<%= user.email %>">
-                  <%= user.email %>
-                </a>
-              </p>
-            </div>
+<div class="row">
+  <div class="col-md-3">
+    <h4>Submitted by</h4>
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <div class="panel-title"><%= user.firstName + " " + user.lastName %></div>
+      </div>
+      <div class="panel-body">
+        <div class="thumbnail">
+          <img src="<%= user.profilePic %>" alt="user profile image">
+          <div class="caption">
+            <p>Username: <%= campground.author.username %></a></p>
+            <p>Email: <a href="mailto:<%= user.email %>"><%= user.email %></a></p>
           </div>
         </div>
       </div>
-      <h4><%= user.firstName %>'s campgrounds</h4>
-      <div class="list-group">
-        <a class="list-group-item active" href="#">
-          <%= campground.name %>
-        </a>
-        <% userCampgrounds.forEach((campground) => { %>
-          <a class="list-group-item" href="/campgrounds/<%= campground.id %>">
-            <%= campground.name %>
-          </a>
-          <% }) %>
-      </div>
-      <div id="map"></div>
     </div>
-    <div class="col-md-9">
-      <div class="thumbnail">
-        <img class="img-responsive" src="<%= campground.image %>" alt="Campground Image">
-        <div class="caption-full">
-          <h4 class="pull-right">$<%= campground.price %>/night</h4>
-          <h4><a href="#"><%= campground.name %></a></h4>
-          <p>
-            Submitted <em><%= moment(campground.createdAt).fromNow() %></em>
-          </p>
-          <p>
-            <%= campground.description %>
-          </p>
-          <% if (currentUser && (campground.author.id.equals(currentUser._id) || currentUser.isAdmin)) { %>
-            <a class="btn btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
-            <form class="delete-form" action="/campgrounds/<%= campground._id %>?_method=delete" method="post">
-              <button class="btn btn-danger">Delete</button>
-            </form>
+    <h4><%= user.firstName %>'s campgrounds</h4>
+    <div class="list-group">
+      <a class="list-group-item active" href="#"><%= campground.name %></a>
+      <% userCampgrounds.forEach((campground) => { %>
+        <a class="list-group-item" href="/campgrounds/<%= campground.id %>"><%= campground.name %></a>
+      <% }) %>
+    </div>
+    <div id="map"></div>
+  </div>
+  <div class="col-md-9">
+    <div class="thumbnail">
+      <img class="img-responsive" src="<%= campground.image %>" alt="Campground Image">
+      <div class="caption-full">
+        <h4 class="pull-right">$<%= campground.price %>/night</h4>
+        <h4><a href="#"><%= campground.name %></a></h4>
+        <p>
+          Submitted <em><%= moment(campground.createdAt).fromNow() %></em>
+        </p>
+        <p><%= campground.description %></p>
+        <% if (currentUser && (campground.author.id.equals(currentUser._id) || currentUser.isAdmin)) { %>
+          <a class="btn btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+          <form class="delete-form" action="/campgrounds/<%= campground._id %>?_method=delete" method="post">
+            <button class="btn btn-danger">Delete</button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+    <div class="well">
+      <div class="text-right">
+        <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+      </div>
+      <% campground.comments.forEach((comment) => { %>
+        <hr>
+        <div class="row">
+          <div class="col-md-12">
+            <strong><%= comment.author.username %></strong>
+            <span class="pull-right"><%= moment(comment.createdAt).fromNow() %></span>
+            <p>
+              <%= comment.text %>
+            </p>
+            <% if (currentUser && (comment.author.id.equals(currentUser._id) || currentUser.isAdmin)) { %>
+              <div class="pull-right">
+                <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>/edit">Edit</a>
+                <form class="delete-form" action="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>?_method=delete" method="post">
+                  <input class="btn btn-xs btn-danger" type="submit" value="Delete">
+                </form>
+              </div>
             <% } %>
-        </div>
-      </div>
-      <div class="well">
-        <div class="text-right">
-          <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
-        </div>
-        <% campground.comments.forEach((comment) => { %>
-          <hr>
-          <div class="row">
-            <div class="col-md-12">
-              <strong><%= comment.author.username %></strong>
-              <span class="pull-right"><%= moment(comment.createdAt).fromNow() %></span>
-              <p>
-                <%= comment.text %>
-              </p>
-              <% if (currentUser && (comment.author.id.equals(currentUser._id) || currentUser.isAdmin)) { %>
-                <div class="pull-right">
-                  <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>/edit">Edit</a>
-                  <form class="delete-form" action="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>?_method=delete" method="post">
-                    <input class="btn btn-xs btn-danger" type="submit" value="Delete">
-                  </form>
-                </div>
-                <% } %>
-            </div>
           </div>
-          <% }) %>
-      </div>
+        </div>
+      <% }) %>
     </div>
   </div>
+</div>
 
-  <script>
-    function initMap() {
-      let lat = <%= campground.lat %>;
-      let lng = <%= campground.lng %>;
-      let center = {
-        lat,
-        lng
-      };
-      let map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 8,
-        center: center,
-        scrollwheel: false
-      });
-      let contentString = `<strong><%= campground.name %><br / /><%= campground.location %></strong><p><%= campground.description %></p>`
-      let infowindow = new google.maps.InfoWindow({
-        content: contentString
-      });
-      let marker = new google.maps.Marker({
-        position: center,
-        map: map
-      });
-      marker.addListener("click", () => {
-        infowindow.open(map, marker);
-      });
-    }
-  </script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.MAPS_API_KEY %>&callback=initMap"></script>
+<script>
+  function initMap() {
+    let lat = <%= campground.lat %>;
+    let lng = <%= campground.lng %>;
+    let center = { lat, lng };
+    let map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 8,
+      center: center,
+      scrollwheel: false
+    });
+    let contentString = `<strong><%= campground.name %><br / /><%= campground.location %></strong><p><%= campground.description %></p>`
+    let infowindow = new google.maps.InfoWindow({
+      content: contentString
+    });
+    let marker = new google.maps.Marker({
+      position: center,
+      map: map
+    });
+    marker.addListener("click", () => {
+      infowindow.open(map, marker);
+    });
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.MAPS_API_KEY %>&callback=initMap"></script>
 
-  <% include ../partials/footer %>
+<% include ../partials/footer %>

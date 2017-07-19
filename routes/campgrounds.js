@@ -6,7 +6,7 @@ const middleware = require("../middleware");
 const geocoder = require("geocoder");
 
 function escapeRegex(text) {
-  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
 
 // INDEX - show all campgrounds

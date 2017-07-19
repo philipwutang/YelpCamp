@@ -25,15 +25,17 @@ body {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
 }
 
-
 /* work around for flex-wrap in safari */
-
-.flex.container:before, .flex.container:after, .flex.row:before, .flex.row:after {
+.flex.container:before,
+.flex.container:after,
+.flex.row:before,
+.flex.row:after {
   content: normal;
 }
 
@@ -50,9 +52,7 @@ legend {
   text-align: center;
 }
 
-
 /* Google Maps */
-
 #map {
   height: 400px;
   width: 100%;
